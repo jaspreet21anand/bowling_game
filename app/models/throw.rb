@@ -15,17 +15,16 @@ class Throw < ApplicationRecord
 
   delegate :update_frame_state, to: :frame
 
+  # this method is used for testing cases in rails console.
   def self.add(pin_fall_count, game_id)
     ActiveRecord::Base.transaction do
-      game = Game.find game_id
-      current_frame = game.frames.last if game.frames.count == Game::MAX_FRAMES
+      game = Game.find_by(game_id)
       current_frame ||= game.frames.find_or_create_by(state: :open)
       current_frame.throws.create(knocked_pins: pin_fall_count)
     end
   end
 
   private
-
     def set_knock_type
       self.knock_type = if frame.last_frame?
         _previous_throw = (previous_throw&.strike? || previous_throw&.spare?) ? nil : previous_throw
@@ -60,7 +59,7 @@ class Throw < ApplicationRecord
     def sum_of_knocked_pins_within_max_pins
       return if frame.additional_throws_awarded?
       unless self.knocked_pins <= (Frame::MAX_PINS - frame.knocked_pins)
-        errors.add(:knocked_pins, 'Invalid knocked pins count. Max pin count exceeded.')
+        errors.add(:knocked_pins, ' count exceeded the Maxpin count.')
       end
     end
 

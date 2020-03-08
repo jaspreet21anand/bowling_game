@@ -2,6 +2,7 @@ class Frame < ApplicationRecord
   MAX_PINS = 10
   MAX_THROWS_IN_LAST_FRAME = 3
   MAX_THROWS_PER_FRAME = 2
+
   has_many :throws, dependent: :destroy
   belongs_to :game
 
@@ -13,13 +14,7 @@ class Frame < ApplicationRecord
   after_update :update_game_score, :update_game_state, if: :score
 
   def update_frame_state
-    if last_frame? && with_strike_or_spare?
-      mark_closed if throws.size == MAX_THROWS_IN_LAST_FRAME
-    elsif with_strike_or_spare?
-      mark_closed
-    elsif throws.size == MAX_THROWS_PER_FRAME
-      mark_closed
-    end
+    mark_closed if can_be_closed?
   end
 
   def knocked_pins
@@ -34,14 +29,6 @@ class Frame < ApplicationRecord
     update(score: score) if score
   end
 
-  def calculate_score
-    if last_frame?
-      knocked_pins
-    else
-      send("calculate_#{ knock_type }_score")
-    end
-  end
-
   def last_frame?
     game.frames.count == Game::MAX_FRAMES && game.frames.order(:created_at).last.id == self.id
   end
@@ -51,6 +38,22 @@ class Frame < ApplicationRecord
   end
 
   private
+    def calculate_score
+      if last_frame?
+        knocked_pins
+      else
+        send("calculate_#{ knock_type }_score")
+      end
+    end
+
+    def can_be_closed?
+      if additional_throws_awarded?
+        throws.size == MAX_THROWS_IN_LAST_FRAME ? true : false
+      elsif with_strike_or_spare? || throws.size == MAX_THROWS_PER_FRAME
+        true
+      end
+    end
+
     def mark_closed
       update(state: :closed)
     end
@@ -109,15 +112,17 @@ class Frame < ApplicationRecord
     end
 
     def next_one_throw
-      @next_one_throw ||= game.throws
-      .where("throws.created_at > ?", throws.last.created_at)
-      .order("throws.created_at ASC").first
+      @next_one_throw ||= next_throws.first
     end
 
     def next_two_throws
-      @next_two_throws ||= game.throws
+      @next_two_throws ||= next_throws.first(2)
+    end
+
+    def next_throws
+      game.throws
       .where("throws.created_at > ?", throws.last.created_at)
-      .order("throws.created_at ASC").first(2)
+      .order("throws.created_at ASC")
     end
 
     def game_should_be_open
