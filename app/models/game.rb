@@ -21,9 +21,11 @@ class Game < ApplicationRecord
 
   def score_details
     {
-      total_score: score,
-      game_state: state,
-      frames: frames.includes(:throws).order(:created_at).inject([]) { |result, frame| result << { throws: frame.throws.order(:created_at).pluck(:knocked_pins), score: frame.score, c_score: (result.last.try(:[],:c_score).to_i + frame.score) }; result }
+      frames: frames.includes(:throws).order(:created_at).map { |frame|
+        frame.as_json(root: true, include: {
+          throws: { only: [:knocked_pins, :knock_type] }
+        }, only: [:state, :score])
+      }
     }
   end
 

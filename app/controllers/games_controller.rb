@@ -14,7 +14,7 @@ class GamesController < ApplicationController
 
   def show
     if @game
-      render json: { status: :success, score: @game.score, state: @game.state, score_chart: {} }
+      render json: { status: :success, score: @game.score, state: @game.state, score_chart: @game.score_details }
     else
       render json: { status: :error, message: 'Game not found' }, status: :not_found
     end
