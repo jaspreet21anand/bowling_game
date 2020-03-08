@@ -22,7 +22,7 @@ class Throw < ApplicationRecord
       game = Game.find_by(id: game_id)
       current_frame ||= game.frames.find_or_create_by(state: :open)
       _throw = current_frame.throws.build(knocked_pins: pin_fall_count)
-      current_frame.save
+      _throw.save
     end
   end
 
