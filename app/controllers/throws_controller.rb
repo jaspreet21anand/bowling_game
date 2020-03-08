@@ -15,8 +15,8 @@ class ThrowsController < ApplicationController
 
   private
     def load_game
-      unless @game = Game.find_by(id: params[:game_id])
-        render json: { status: :error, message: 'Game not found.'}, status: :not_found
+      unless @game = Game.open.find_by(id: params[:game_id])
+        render json: { status: :error, message: 'No such active game found.'}, status: :not_found
       end
     end
 

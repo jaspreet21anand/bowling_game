@@ -1,11 +1,12 @@
 class Throw < ApplicationRecord
-  belongs_to :frame
+  belongs_to :frame, validate: true
   has_one :game, through: :frame
 
-  validates :knocked_pins, presence: true
+  validates :knocked_pins, :game, presence: true
   validates :knocked_pins, numericality: { only_integer: true,
     greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
-  validate :sum_of_knocked_pins_within_max_pins, :game_should_be_open, :frame_should_be_open
+  validate :sum_of_knocked_pins_within_max_pins, :frame_should_be_open
+  validate :game_should_be_open, if: :game
 
   enum knock_type: { play: 0, strike: 1, spare: 2 }
 
@@ -20,7 +21,8 @@ class Throw < ApplicationRecord
     ActiveRecord::Base.transaction do
       game = Game.find_by(id: game_id)
       current_frame ||= game.frames.find_or_create_by(state: :open)
-      current_frame.throws.create(knocked_pins: pin_fall_count)
+      _throw = current_frame.throws.build(knocked_pins: pin_fall_count)
+      current_frame.save
     end
   end
 
@@ -45,7 +47,7 @@ class Throw < ApplicationRecord
     end
 
     def previous_throw
-      @previous_throw ||= frame.throws.last
+      @previous_throw ||= Throw.where(frame_id: frame.id).last
     end
 
     def calculate_frame_scores
