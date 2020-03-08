@@ -22,7 +22,7 @@ class Game < ApplicationRecord
   def score_details
     {
       frames: frames.includes(:throws).order(:created_at).map { |frame|
-        frame.as_json(root: true, include: {
+        frame.as_json(include: {
           throws: { only: [:knocked_pins, :knock_type] }
         }, only: [:state, :score])
       }

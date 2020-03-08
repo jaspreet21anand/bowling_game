@@ -13,15 +13,14 @@ class GamesController < ApplicationController
   end
 
   def show
-    if @game
-      render json: { status: :success, score: @game.score, state: @game.state, score_chart: @game.score_details }
-    else
-      render json: { status: :error, message: 'Game not found' }, status: :not_found
-    end
+    render json: { status: :success, game: @game.
+      as_json(only: [:score, :state], methods: :score_details) }
   end
 
   private
     def load_game
-      @game = Game.find_by(id: params[:id])
+      unless @game = Game.find_by(id: params[:id])
+        render json: { status: :error, message: 'Game not found' }, status: :not_found
+      end
     end
 end
