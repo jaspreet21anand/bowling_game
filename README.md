@@ -1,24 +1,14 @@
-# README
+# BOWLING GAME
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This repository opens up API for
+- starting a new bowling game which returns `game_id`
+- recording ball throws with `pinfall_count` and `game_id` as parameters
+- api to return current game `state` and `score`
 
-Things you may want to cover:
+* Ruby version - ruby-2.6.3
 
-* Ruby version
+* Configuration - Rails 6.0.2 --api --postgresql
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* configure your database.yml for postgresql
+  rake db:create
+  rake db:migrate
