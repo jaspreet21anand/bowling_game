@@ -16,7 +16,7 @@ This repository opens up API for
 * Enpoints:
 1. Start New Game - `POST /games`
 - `{ "status": "success", "message": "New game started", "game_id": 37 }`
-2. Add a Throw - `POST /games/:game_id/throws`
+2. Add a Throw - `POST /games/:game_id/throws` accepts params `{ knocked_pins: 1 }`
 - `{ "status": "success", "message": "Throw recorded successfully.", "knocked_pins": 1 }`
 3. Get Game Score & Status - `GET /games/:id`
 - ```{
