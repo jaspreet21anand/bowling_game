@@ -18,7 +18,7 @@ class Throw < ApplicationRecord
   # this method is used for testing cases in rails console.
   def self.add(pin_fall_count, game_id)
     ActiveRecord::Base.transaction do
-      game = Game.find_by(game_id)
+      game = Game.find_by(id: game_id)
       current_frame ||= game.frames.find_or_create_by(state: :open)
       current_frame.throws.create(knocked_pins: pin_fall_count)
     end

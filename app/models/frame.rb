@@ -30,7 +30,8 @@ class Frame < ApplicationRecord
   end
 
   def last_frame?
-    game.frames.count == Game::MAX_FRAMES && game.frames.order(:created_at).last.id == self.id
+    @last_frame ||= (game.frames.count == Game::MAX_FRAMES &&
+      game.frames.order(:created_at).last.id == self.id)
   end
 
   def additional_throws_awarded?
@@ -70,7 +71,7 @@ class Frame < ApplicationRecord
     end
 
     def ordered_throws
-      @ordered_throws ||= throws.order(:created_at)
+      @ordered_throws ||= throws.order(:created_at).all
     end
 
     def with_strike_or_spare?
