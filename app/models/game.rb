@@ -1,12 +1,13 @@
 class Game < ApplicationRecord
   MAX_FRAMES = 10
+
   has_many :frames, dependent: :destroy
   has_many :throws, through: :frames
 
   before_validation :set_default_state, on: :create
 
   validates :state, presence: true
-  validates :score, numericality: { only_integer: true }, allow_nil: true
+  validates :score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
   enum state: { open: 0, completed: 1, expired: 2 }
 
@@ -20,9 +21,11 @@ class Game < ApplicationRecord
 
   def score_details
     {
-      total_score: score,
-      game_state: state,
-      frames: frames.includes(:throws).order(:created_at).inject([]) { |result, frame| result << { throws: frame.throws.order(:created_at).pluck(:knocked_pins), score: frame.score, c_score: (result.last.try(:[],:c_score).to_i + frame.score) }; result }
+      frames: frames.includes(:throws).order(:created_at).map { |frame|
+        frame.as_json(include: {
+          throws: { only: [:knocked_pins, :knock_type] }
+        }, only: [:state, :score])
+      }
     }
   end
 

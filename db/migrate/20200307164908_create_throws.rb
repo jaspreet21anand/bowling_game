@@ -8,7 +8,6 @@ class CreateThrows < ActiveRecord::Migration[6.0]
       t.timestamps
     end
     add_index :throws, :frame_id
-    add_index :throws, :knock_type
     add_index :throws, :created_at
   end
 end
