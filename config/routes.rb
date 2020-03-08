@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
 
-  get 'throws/create'
   resources :games, only: [:show, :create] do
     resources :throws, only: [:create]
   end
