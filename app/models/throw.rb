@@ -20,8 +20,7 @@ class Throw < ApplicationRecord
   def self.add(pin_fall_count, game_id)
     ActiveRecord::Base.transaction do
       game = Game.find_by(id: game_id)
-      current_frame ||= game.frames.find_or_create_by(state: :open)
-      _throw = current_frame.throws.build(knocked_pins: pin_fall_count)
+      _throw = game.current_frame.throws.build(knocked_pins: pin_fall_count)
       _throw.save
     end
   end

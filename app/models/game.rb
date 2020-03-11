@@ -29,6 +29,10 @@ class Game < ApplicationRecord
     }
   end
 
+  def current_frame
+    frames.find_or_create_by(state: :open)
+  end
+
   private
     def set_default_state
       self.state = :open
